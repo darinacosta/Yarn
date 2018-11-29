@@ -23,6 +23,15 @@
 		<script type="text/javascript" src="js/classes/data.js"></script>
 		<script type="text/javascript" src="js/classes/utils.js"></script>
 		<script type="text/javascript" src="js/classes/node.js"></script>
+		<script>
+		const room = data.getURLParameter("room");
+
+if (room) {
+  data.GorGetTextFile(
+    "http://localhost:9000/src/rooms/" + room + "/dialogue.json"
+  );
+}
+</script>
 	</head>
 	<body>
 

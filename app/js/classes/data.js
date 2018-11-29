@@ -50,9 +50,61 @@ var data = {
           data.loadData(contents, type, clearNodes);
         }
       };
-      console.log("!!!!!TARGET FILES", e.target.files[0]);
-      reader.readAsText(e.target.files[0], "UTF-8");
+      console.log("!!!!!TARGET FILES", "zzzzzz");
+      reader.readAsText(
+        new Blob([], {
+          type: "text/json"
+        }),
+        "UTF-8"
+      );
     }
+  },
+  // !!!DJA
+  GorGetTextFile: function(file) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function() {
+      if (rawFile.readyState === 4) {
+        if (rawFile.status === 200 || rawFile.status == 0) {
+          var allText = rawFile.responseText;
+          gorOpenFile(allText);
+        }
+      }
+    };
+    rawFile.send(null);
+  },
+
+  getURLParameter: function(sParam) {
+    const sPageURL = window.location.search.substring(1);
+    const sURLVariables = sPageURL.split("&");
+    for (let i = 0; i < sURLVariables.length; i++) {
+      const sParameterName = sURLVariables[i].split("=");
+      if (sParameterName[0] == sParam) {
+        return sParameterName[1];
+      }
+    }
+  },
+
+  gorOpenFile: function(text) {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      if (
+        e.srcElement &&
+        e.srcElement.result &&
+        e.srcElement.result.length > 0
+      ) {
+        var contents = e.srcElement.result;
+        var type = FILETYPE.JSON;
+        // if (type == FILETYPE.UNKNOWN) alert("Unknown filetype!");
+        data.loadData(contents, type, clearNodes);
+      }
+    };
+    reader.readAsText(
+      new Blob([text], {
+        type: "text/json"
+      }),
+      "UTF-8"
+    );
   },
 
   openFile: function(e, filename) {
@@ -260,7 +312,6 @@ var data = {
       .transition({ opacity: 1 }, 500);
     app.updateNodeLinks();
   },
-
   getSaveData: function(type) {
     var output = "";
     var content = [];
@@ -348,20 +399,6 @@ var data = {
     console.log(dialog.val());
     dialog.bind("change", function(e) {
       // make callback
-      function readTextFile(file) {
-        var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, false);
-        rawFile.onreadystatechange = function() {
-          if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-              var allText = rawFile.responseText;
-              alert(allText);
-            }
-          }
-        };
-        rawFile.send(null);
-      }
-      readTextFile("http://localhost:9000/src/rooms/bedroom/dialogue.json");
       callback(e, dialog.val());
 
       // replace input field with a new identical one, with the value cleared
@@ -435,7 +472,7 @@ var data = {
         }
       }
 
-      download(content, getURLParameter("room") + ".json", "json");
+      download(content, data.getURLParameter("room") + ".json", "json");
 
       //window.open(content, "_blank");
     }
