@@ -59,7 +59,18 @@ var data = {
       );
     }
   },
-  // !!!DJA
+
+  gorPostDialogue: function(text) {
+    $.ajax({
+      type: "POST",
+      url: "/dialogue",
+      data: {
+        room: data.getURLParameter("room"),
+        json: text
+      }
+    });
+  },
+
   GorGetTextFile: function(file) {
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", file, false);
@@ -491,8 +502,10 @@ var data = {
   },
 
   trySave: function(type) {
-    data.editingType(type);
-    data.saveFileDialog($("#save-file"), type, data.getSaveData(type));
+    data.gorPostDialogue(data.getSaveData("json"));
+    return;
+    // data.editingType(type);
+    // data.saveFileDialog($("#save-file"), type, data.getSaveData(type));
   },
 
   trySaveCurrent: function() {
