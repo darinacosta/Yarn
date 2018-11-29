@@ -96,7 +96,7 @@ var data = {
         var contents = e.srcElement.result;
         var type = FILETYPE.JSON;
         // if (type == FILETYPE.UNKNOWN) alert("Unknown filetype!");
-        data.loadData(contents, type, clearNodes);
+        data.loadData(contents, type, true);
       }
     };
     reader.readAsText(
