@@ -283,7 +283,6 @@ var Node = function() {
 
     if (match) {
       links.push(`[[anything|${match[1]}]]`);
-      console.log("!!!!LINKS", links);
     }
     if (links != undefined) {
       var exists = {};
