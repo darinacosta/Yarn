@@ -225,20 +225,38 @@ var App = function(name, version) {
           }
         }
       });
+      
+      const getNodeTitles = () => self.nodes().map(node => node.title());
+      const nodeExists = (title, titles = getNodeTitles()) => titles.indexOf(title) > -1;
 
-      const nodeExists = title => self.nodes().map(node => node.title() === title).indexOf(true) > -1;
+      const maybeAddNodeFromNextTag = (node, titles) => {
+        if (node.tags().indexOf('next-') > -1) {
+          var regex = /next-(.+?)(,|$)/;
+          var match = regex.exec(node.tags())[1];
+          if (!nodeExists(match, titles)) {
+            self.newNodeAt(node.x() + 100, node.y() + 350, { title: match})
+          }
+        }
+      }
+
+      const maybeAddNodesFromChoices = (node, titles) => {
+        const choices = node.body().match(/\[(.*?)\]/g);
+        for (let i = 0; i < choices.length; i += 1) {
+          const replaceOpenBracket = choices[i].replace(/\[/g, "");
+          const replaceClosedBracket = replaceOpenBracket.replace(/\]/g, "");
+          const title = replaceClosedBracket.split("|")[1].trim();
+          if (!nodeExists(title, titles)) {
+            self.newNodeAt(node.x() + (300 * i), node.y() + 350, { title })
+          }
+        }
+      }
 
       // DJA
       self.addNewAutoNodes = () => {
+        const titles = getNodeTitles()
         self.nodes().forEach(node => {
-          if (node.tags().indexOf('next-') > -1) {
-            var regex = /next-(.+?)(,|$)/;
-            var match = regex.exec(node.tags())[1];
-            if (!nodeExists(match)) {
-              console.log(node.x())
-              self.newNodeAt(node.x() + 100, node.y() + 350, { title: match})
-            }
-          }
+          maybeAddNodeFromNextTag(node, titles);
+          maybeAddNodesFromChoices(node, titles);
         })
       }
 
@@ -639,7 +657,6 @@ var App = function(name, version) {
       }, 100)
     }
     setTimeout(() => {
-      console.log("!!SAVE")
       self.addNewAutoNodes()
     }, 300);
 
