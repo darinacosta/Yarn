@@ -3,12 +3,12 @@ const NodeExpandWidth = 300;
 const NodeExpandHeight = 150;
 const ClipNodeTextLength = 1024;
 
-var Node = function() {
+var Node = function(args = {}) {
   var self = this;
 
   // primary values
   this.index = ko.observable(globalNodeIndex++);
-  this.title = ko.observable("Node" + this.index());
+  this.title = ko.observable(args.title || "Node" + this.index());
   this.tags = ko.observable("");
   this.body = ko.observable("Empty Text");
   //this.x = ko.observable(128);
@@ -18,7 +18,7 @@ var Node = function() {
   this.tempHeight;
   this.tempOpacity;
   this.style;
-  this.colorID = ko.observable(0);
+  this.colorID = ko.observable(args.colorID || 0);
   this.checked = false;
   this.selected = false;
 
@@ -268,22 +268,24 @@ var Node = function() {
     return false;
   };
 
+  this.getLinks = (links) => {
+	var links = self.body().match(/\[\[(.*?)\]\]/g) || [];
+	// connect nodes based on `next-<title>` tag
+    var regex = /next-(.+?)(,|$)/;
+	var match = regex.exec(self.tags());
+	if (match) {
+	  links.push(`[[anything|${match[1]}]]`);
+	}
+	return links;
+  }
+
   this.updateLinks = function() {
     self.resetDoubleClick();
     // clear existing links
     self.linkedTo.removeAll();
 
     // find all the links
-    var links = self.body().match(/\[\[(.*?)\]\]/g) || [];
-
-    // !!!dja gor addition
-    // connect nodes based on `next-<title>` tag
-    var regex = /next-(.+?)(,|$)/;
-    var match = regex.exec(self.tags());
-
-    if (match) {
-      links.push(`[[anything|${match[1]}]]`);
-    }
+    var links = this.getLinks()
     if (links != undefined) {
       var exists = {};
       for (var i = links.length - 1; i >= 0; i--) {

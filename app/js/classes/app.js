@@ -101,8 +101,6 @@ var App = function(name, version) {
       }
     };
 
-    // updateArrows
-    // setInterval(function() { self.updateArrows(); }, 16);
 
     // drag node holder around
     (function() {
@@ -228,10 +226,26 @@ var App = function(name, version) {
         }
       });
 
+      const nodeExists = title => self.nodes().map(node => node.title() === title).indexOf(true) > -1;
+
+      // DJA
+      self.addNewAutoNodes = () => {
+        self.nodes().forEach(node => {
+          if (node.tags().indexOf('next-') > -1) {
+            var regex = /next-(.+?)(,|$)/;
+            var match = regex.exec(node.tags())[1];
+            if (!nodeExists(match)) {
+              console.log(node.x())
+              self.newNodeAt(node.x() + 100, node.y() + 350, { title: match})
+            }
+          }
+        })
+      }
+
       $(".nodes").on("mouseup", function(e) {
         console.log("finished dragging");
         dragging = false;
-
+        
         if (MarqueeOn && MarqueeSelection.length == 0) {
           self.deselectAllNodes();
         }
@@ -240,6 +254,9 @@ var App = function(name, version) {
         MarqRect = { x1: 0, y1: 0, x2: 0, y2: 0 };
         $("#marquee").css({ x: 0, y: 0, width: 0, height: 0 });
         MarqueeOn = false;
+
+        self.updateNodeLinks();
+        
       });
     })();
 
@@ -559,8 +576,8 @@ var App = function(name, version) {
     return node;
   };
 
-  this.newNodeAt = function(x, y) {
-    var node = new Node();
+  this.newNodeAt = function(x, y, config) {
+    var node = new Node(config);
 
     self.nodes.push(node);
 
@@ -606,6 +623,7 @@ var App = function(name, version) {
   };
 
   this.saveNode = function() {
+
     if (self.editing() != null) {
       self.updateNodeLinks();
 
@@ -615,9 +633,16 @@ var App = function(name, version) {
       $(".node-editor .form").transition({ y: "-100" }, 250, function() {
         self.editing(null);
       });
-
-      setTimeout(self.updateSearch, 100);
+      
+      setTimeout(() => {
+        self.updateSearch();
+      }, 100)
     }
+    setTimeout(() => {
+      console.log("!!SAVE")
+      self.addNewAutoNodes()
+    }, 300);
+
   };
 
   this.updateSearch = function() {
