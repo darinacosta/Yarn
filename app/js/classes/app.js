@@ -230,6 +230,7 @@ var App = function(name, version) {
       const nodeExists = (title, titles = getNodeTitles()) => titles.indexOf(title) > -1;
 
       const maybeAddNodeFromNextTag = (node, titles) => {
+        if (node.tags().indexOf('next-options')) return;
         if (node.tags().indexOf('next-') > -1) {
           var regex = /next-(.+?)(,|$)/;
           var match = regex.exec(node.tags())[1];
