@@ -241,6 +241,7 @@ var App = function(name, version) {
 
       const maybeAddNodesFromChoices = (node, titles) => {
         const choices = node.body().match(/\[(.*?)\]/g);
+        if (!choices) return;
         for (let i = 0; i < choices.length; i += 1) {
           const replaceOpenBracket = choices[i].replace(/\[/g, "");
           const replaceClosedBracket = replaceOpenBracket.replace(/\]/g, "");
